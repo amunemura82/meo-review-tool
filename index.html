@@ -160,12 +160,10 @@ textarea { resize: vertical; line-height: 1.6; }
 <div class="container">
   <div class="card">
     <div class="card-label">店舗情報・レビュー入力</div>
-
     <div class="field">
       <label>店舗名 <span class="req">*</span></label>
       <input type="text" id="storeName" placeholder="例：ラーメン一番 渋谷店">
     </div>
-
     <div class="field">
       <label>業種 <span class="req">*</span></label>
       <select id="genre">
@@ -181,7 +179,6 @@ textarea { resize: vertical; line-height: 1.6; }
         <option>その他</option>
       </select>
     </div>
-
     <div class="field">
       <label>レビューの星評価 <span class="req">*</span></label>
       <div class="stars" id="starsEl">
@@ -193,13 +190,11 @@ textarea { resize: vertical; line-height: 1.6; }
         <span class="star-label" id="starLabel"></span>
       </div>
     </div>
-
     <div class="field">
       <label>レビュー本文 <span class="req">*</span></label>
       <textarea id="reviewText" rows="5" placeholder="お客様のレビュー文をここに貼り付けてください..."></textarea>
       <div class="char-count" id="charCount">0文字</div>
     </div>
-
     <button class="btn-generate" id="genBtn" disabled onclick="generate()">✨ 返信文を生成する</button>
   </div>
 
@@ -290,7 +285,7 @@ ${review}
 返信文のみを出力してください。説明や前置きは不要です。`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

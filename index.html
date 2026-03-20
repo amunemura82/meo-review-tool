@@ -3,324 +3,363 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MEOレビュー返信ツール</title>
+<title>MEO レビュー返信自動生成ツール</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
-  background: #F8FAFC;
-  min-height: 100vh;
-  padding-bottom: 60px;
-}
-header {
-  background: #fff;
-  border-bottom: 1px solid #E2E8F0;
-  padding: 16px 24px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-.header-inner {
-  max-width: 640px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.logo {
-  width: 36px; height: 36px;
-  background: #1E293B;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-}
-.header-title { font-size: 16px; font-weight: 700; color: #0F172A; }
-.header-sub { font-size: 11px; color: #94A3B8; margin-top: 1px; }
-.container { max-width: 640px; margin: 0 auto; padding: 32px 20px 0; }
-.card {
-  background: #fff;
-  border-radius: 16px;
-  border: 1px solid #E2E8F0;
-  padding: 28px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  margin-bottom: 16px;
-}
-.card-label {
-  font-size: 13px; font-weight: 700; color: #475569;
-  letter-spacing: 0.06em; margin-bottom: 20px;
-  text-transform: uppercase;
-}
-.field { margin-bottom: 18px; }
-label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 7px; }
-.req { color: #EF4444; }
-input[type=text], select, textarea {
-  width: 100%; padding: 11px 14px;
-  border: 1.5px solid #E2E8F0;
-  border-radius: 10px;
-  font-size: 14px; color: #0F172A;
-  outline: none;
-  background: #FAFAFA;
-  font-family: inherit;
-  transition: border-color 0.2s;
-}
-input[type=text]:focus, select:focus, textarea:focus { border-color: #1E293B; }
-textarea { resize: vertical; line-height: 1.6; }
-.char-count { font-size: 11px; color: #94A3B8; text-align: right; margin-top: 5px; }
-.stars { display: flex; gap: 6px; align-items: center; }
-.stars button {
-  background: none; border: none; cursor: pointer;
-  font-size: 32px; padding: 0; line-height: 1;
-  color: #D1D5DB; transition: color 0.15s, transform 0.15s;
-}
-.stars button.active { color: #F59E0B; transform: scale(1.15); }
-.star-label { font-size: 13px; color: #6B7280; margin-left: 4px; }
-.btn-generate {
-  width: 100%; padding: 14px;
-  background: #1E293B; color: #fff;
-  border: none; border-radius: 12px;
-  font-size: 15px; font-weight: 700;
-  cursor: pointer; font-family: inherit;
-  letter-spacing: 0.02em;
-  transition: background 0.2s;
-}
-.btn-generate:hover { background: #0F172A; }
-.btn-generate:disabled { background: #CBD5E1; cursor: not-allowed; }
-.spinner {
-  width: 16px; height: 16px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  display: inline-block;
-  animation: spin 0.8s linear infinite;
-  vertical-align: middle;
-  margin-right: 8px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.result-card {
-  background: #fff;
-  border-radius: 16px;
-  border: 1px solid #E2E8F0;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  animation: fadeIn 0.3s ease;
-}
-@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-.result-header {
-  padding: 14px 20px;
-  border-bottom: 1px solid #F1F5F9;
-  display: flex; justify-content: space-between; align-items: center;
-}
-.result-label { font-size: 13px; font-weight: 700; color: #374151; }
-.btn-copy {
-  display: flex; align-items: center; gap: 6px;
-  padding: 8px 16px;
-  background: #1E293B; color: #fff;
-  border: none; border-radius: 8px;
-  cursor: pointer; font-size: 13px; font-weight: 600;
-  font-family: inherit; transition: background 0.2s;
-}
-.btn-copy.copied { background: #10B981; }
-.result-text {
-  padding: 20px;
-  font-size: 14px; line-height: 1.8; color: #1E293B;
-  white-space: pre-wrap; background: #FAFBFC;
-}
-.result-meta {
-  padding: 10px 20px;
-  border-top: 1px solid #F1F5F9;
-  font-size: 11px; color: #94A3B8;
-  display: flex; justify-content: space-between;
-}
-.error-box {
-  padding: 14px 16px;
-  background: #FEF2F2; border: 1px solid #FECACA;
-  border-radius: 10px; font-size: 13px; color: #DC2626;
-  margin-bottom: 16px;
-}
-.hint-box {
-  padding: 16px 20px;
-  background: #F0F9FF; border: 1px solid #BAE6FD;
-  border-radius: 12px;
-}
-.hint-title { font-size: 12px; font-weight: 700; color: #0369A1; margin-bottom: 8px; }
-.hint-box ul { margin: 0; padding-left: 16px; font-size: 12px; color: #0C4A6E; line-height: 1.8; }
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --border: #2a2d3a;
+    --accent: #00d084;
+    --accent2: #00a86b;
+    --text: #e8eaf0;
+    --muted: #888ca0;
+    --error: #ff4d6d;
+    --warn: #ffaa00;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+  .header p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  label {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+  label:first-of-type { margin-top: 0; }
+  input, select, textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 0.95rem;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 110px; }
+  .stars { display: flex; gap: 8px; margin-top: 4px; }
+  .star {
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--border);
+    transition: color 0.15s;
+    user-select: none;
+  }
+  .star.active { color: #ffd700; }
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 20px;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-copy {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    margin-top: 12px;
+  }
+  .btn-copy:hover { background: var(--accent); color: #000; }
+  .result-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 0.93rem;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    margin-top: 16px;
+    min-height: 80px;
+  }
+  .msg {
+    font-size: 0.85rem;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-top: 12px;
+  }
+  .msg-error { background: #2a0a12; color: var(--error); border: 1px solid var(--error)33; }
+  .msg-success { background: #0a2a1a; color: var(--accent); border: 1px solid var(--accent)33; }
+  .license-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    width: 100%;
+    max-width: 440px;
+    text-align: center;
+  }
+  .license-screen .icon { font-size: 3rem; margin-bottom: 16px; }
+  .license-screen h2 { font-size: 1.2rem; margin-bottom: 8px; }
+  .license-screen p { font-size: 0.85rem; color: var(--muted); margin-bottom: 24px; }
+  #licenseInput {
+    text-align: center;
+    letter-spacing: 0.1em;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+  }
+  .spinner {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border: 2px solid #fff4;
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #mainApp { display: none; width: 100%; max-width: 600px; }
 </style>
 </head>
 <body>
-<header>
-  <div class="header-inner">
-    <div class="logo">⭐</div>
-    <div>
-      <div class="header-title">MEOレビュー返信ツール</div>
-      <div class="header-sub">Googleマップの返信文をAIが自動生成</div>
-    </div>
-  </div>
-</header>
 
-<div class="container">
+<div class="header">
+  <h1>⭐ MEO レビュー返信ツール</h1>
+  <p>Googleマップの口コミに、AIが最適な返信文を自動生成</p>
+</div>
+
+<!-- ライセンス認証画面 -->
+<div class="license-screen" id="licenseScreen">
+  <div class="icon">🔑</div>
+  <h2>ライセンスキーを入力</h2>
+  <p>ご購入時にお送りしたライセンスキーを入力してください<br>（例：MEO-XXXX-XXXX-XXXX）</p>
+  <input type="text" id="licenseInput" placeholder="MEO-XXXX-XXXX-XXXX" maxlength="20" />
+  <div id="licenseMsg"></div>
+  <button class="btn btn-primary" id="licenseBtn" onclick="verifyLicense()" style="max-width:300px; margin-top:16px;">
+    認証する
+  </button>
+</div>
+
+<!-- メインアプリ -->
+<div id="mainApp">
   <div class="card">
-    <div class="card-label">店舗情報・レビュー入力</div>
-    <div class="field">
-      <label>店舗名 <span class="req">*</span></label>
-      <input type="text" id="storeName" placeholder="例：ラーメン一番 渋谷店">
+    <h2>📝 レビュー情報を入力</h2>
+
+    <label>店舗名 *</label>
+    <input type="text" id="storeName" placeholder="例：〇〇ラーメン 渋谷店" />
+
+    <label>業種 *</label>
+    <select id="industry">
+      <option value="">選択してください</option>
+      <option value="ラーメン・麺類">ラーメン・麺類</option>
+      <option value="居酒屋・バー">居酒屋・バー</option>
+      <option value="カフェ・喫茶店">カフェ・喫茶店</option>
+      <option value="イタリアン・フレンチ">イタリアン・フレンチ</option>
+      <option value="焼肉・ステーキ">焼肉・ステーキ</option>
+      <option value="寿司・和食">寿司・和食</option>
+      <option value="美容室・理容室">美容室・理容室</option>
+      <option value="整体・マッサージ">整体・マッサージ</option>
+      <option value="歯科・クリニック">歯科・クリニック</option>
+      <option value="ネイルサロン">ネイルサロン</option>
+      <option value="小売・雑貨">小売・雑貨</option>
+      <option value="その他">その他</option>
+    </select>
+
+    <label>レビューの星評価 *</label>
+    <div class="stars" id="stars">
+      <span class="star" data-v="1" onclick="setStar(1)">★</span>
+      <span class="star" data-v="2" onclick="setStar(2)">★</span>
+      <span class="star" data-v="3" onclick="setStar(3)">★</span>
+      <span class="star" data-v="4" onclick="setStar(4)">★</span>
+      <span class="star" data-v="5" onclick="setStar(5)">★</span>
     </div>
-    <div class="field">
-      <label>業種 <span class="req">*</span></label>
-      <select id="genre">
-        <option value="">業種を選択してください</option>
-        <option>飲食店（レストラン・カフェ・居酒屋など）</option>
-        <option>美容・ネイル・エステ</option>
-        <option>整体・マッサージ・接骨院</option>
-        <option>医療・歯科・クリニック</option>
-        <option>美容室・理容室</option>
-        <option>小売店・ショップ</option>
-        <option>宿泊施設・ホテル</option>
-        <option>学習塾・スクール</option>
-        <option>その他</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>レビューの星評価 <span class="req">*</span></label>
-      <div class="stars" id="starsEl">
-        <button type="button" data-v="1">★</button>
-        <button type="button" data-v="2">★</button>
-        <button type="button" data-v="3">★</button>
-        <button type="button" data-v="4">★</button>
-        <button type="button" data-v="5">★</button>
-        <span class="star-label" id="starLabel"></span>
-      </div>
-    </div>
-    <div class="field">
-      <label>レビュー本文 <span class="req">*</span></label>
-      <textarea id="reviewText" rows="5" placeholder="お客様のレビュー文をここに貼り付けてください..."></textarea>
-      <div class="char-count" id="charCount">0文字</div>
-    </div>
-    <button class="btn-generate" id="genBtn" disabled onclick="generate()">✨ 返信文を生成する</button>
+
+    <label>レビュー本文 *</label>
+    <textarea id="reviewText" placeholder="Googleマップに投稿されたレビューをそのままコピペしてください"></textarea>
+
+    <button class="btn btn-primary" id="generateBtn" onclick="generateReply()" disabled>
+      ✨ 返信文を生成する
+    </button>
   </div>
 
-  <div id="errorBox" class="error-box" style="display:none;"></div>
-
-  <div id="resultCard" class="result-card" style="display:none;">
-    <div class="result-header">
-      <div class="result-label">✅ 返信文が生成されました</div>
-      <button class="btn-copy" id="copyBtn" onclick="copyResult()">📋 コピーする</button>
-    </div>
-    <div class="result-text" id="resultText"></div>
-    <div class="result-meta">
-      <span id="resultChars"></span>
-      <span>MEOキーワード最適化済み</span>
-    </div>
-  </div>
-
-  <div id="hintBox" class="hint-box">
-    <div class="hint-title">💡 使い方のポイント</div>
-    <ul>
-      <li>Googleマップのレビュー文をそのままコピペしてください</li>
-      <li>生成後は内容を確認し、必要に応じて微調整してください</li>
-      <li>返信は24時間以内に行うとMEO評価が上がりやすいです</li>
-    </ul>
+  <div class="card" id="resultCard" style="display:none;">
+    <h2>💬 生成された返信文</h2>
+    <div class="result-box" id="resultText"></div>
+    <button class="btn btn-copy" onclick="copyText()">📋 コピーする</button>
+    <div id="copyMsg"></div>
   </div>
 </div>
 
 <script>
-const starLabels = ['','非常に不満','不満','普通','満足','非常に満足'];
-let selectedStars = 0;
+let rating = 0;
+let licenseKey = '';
 
-document.querySelectorAll('#starsEl button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    selectedStars = parseInt(btn.dataset.v);
-    document.querySelectorAll('#starsEl button').forEach((b, i) => {
-      b.classList.toggle('active', i < selectedStars);
-    });
-    document.getElementById('starLabel').textContent = starLabels[selectedStars];
-    validate();
-  });
-});
+// ライセンス認証
+async function verifyLicense() {
+  const key = document.getElementById('licenseInput').value.trim().toUpperCase();
+  const btn = document.getElementById('licenseBtn');
+  const msg = document.getElementById('licenseMsg');
 
-document.getElementById('reviewText').addEventListener('input', function() {
-  document.getElementById('charCount').textContent = this.value.length + '文字';
-  validate();
-});
-document.getElementById('storeName').addEventListener('input', validate);
-document.getElementById('genre').addEventListener('change', validate);
-
-function validate() {
-  const ok = document.getElementById('storeName').value.trim() &&
-             document.getElementById('genre').value &&
-             selectedStars > 0 &&
-             document.getElementById('reviewText').value.trim().length > 0;
-  document.getElementById('genBtn').disabled = !ok;
-}
-
-async function generate() {
-  const storeName = document.getElementById('storeName').value.trim();
-  const genre = document.getElementById('genre').value;
-  const review = document.getElementById('reviewText').value.trim();
-  const btn = document.getElementById('genBtn');
+  if (!key) {
+    msg.innerHTML = '<div class="msg msg-error">キーを入力してください</div>';
+    return;
+  }
 
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>返信文を生成中...';
-  document.getElementById('errorBox').style.display = 'none';
+  btn.innerHTML = '<span class="spinner"></span>認証中...';
+  msg.innerHTML = '';
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'verify', licenseKey: key })
+    });
+    const data = await res.json();
+
+    if (data.valid) {
+      licenseKey = key;
+      localStorage.setItem('meo_license', key);
+      document.getElementById('licenseScreen').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'flex';
+      document.getElementById('mainApp').style.flexDirection = 'column';
+      document.getElementById('mainApp').style.alignItems = 'center';
+      checkForm();
+    } else {
+      msg.innerHTML = '<div class="msg msg-error">ライセンスキーが無効です。ご購入時のキーをご確認ください。</div>';
+      btn.disabled = false;
+      btn.innerHTML = '認証する';
+    }
+  } catch (e) {
+    msg.innerHTML = '<div class="msg msg-error">通信エラーが発生しました。再度お試しください。</div>';
+    btn.disabled = false;
+    btn.innerHTML = '認証する';
+  }
+}
+
+// 保存済みキーで自動ログイン
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('meo_license');
+  if (saved) {
+    document.getElementById('licenseInput').value = saved;
+    verifyLicense();
+  }
+});
+
+// 星評価
+function setStar(v) {
+  rating = v;
+  document.querySelectorAll('.star').forEach(s => {
+    s.classList.toggle('active', parseInt(s.dataset.v) <= v);
+  });
+  checkForm();
+}
+
+// フォームバリデーション
+function checkForm() {
+  const ok = document.getElementById('storeName').value.trim() &&
+             document.getElementById('industry').value &&
+             rating > 0 &&
+             document.getElementById('reviewText').value.trim();
+  document.getElementById('generateBtn').disabled = !ok;
+}
+['storeName','industry','reviewText'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', checkForm);
+});
+
+// 返信文生成
+async function generateReply() {
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>生成中...';
+
   document.getElementById('resultCard').style.display = 'none';
-  document.getElementById('hintBox').style.display = 'none';
-
-  const prompt = `あなたは店舗のGoogleマップMEO対策の専門家です。
-以下の情報をもとに、Googleビジネスプロフィールへの返信文を作成してください。
-
-【店舗名】${storeName}
-【業種】${genre}
-【レビューの星】${selectedStars}（${starLabels[selectedStars]}）
-【レビュー内容】
-${review}
-
-## 返信文の条件
-- 文字数：150〜250文字
-- 自然な日本語で、丁寧かつ温かみのある文体
-- 店舗名・業種に関連するキーワードを1〜2個自然に含める（MEO効果のため）
-- 星が1〜2の場合は誠実にお詫びし、改善策や再来店への気持ちを伝える
-- 星が3の場合は感謝しつつ、より良くしたいという姿勢を示す
-- 星が4〜5の場合は具体的な内容に触れて感謝し、また来てほしい気持ちを伝える
-- 署名は「${storeName} スタッフ一同」で締める
-
-返信文のみを出力してください。説明や前置きは不要です。`;
 
   try {
     const res = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
+        action: 'generate',
+        licenseKey,
+        storeName: document.getElementById('storeName').value.trim(),
+        industry: document.getElementById('industry').value,
+        rating,
+        reviewText: document.getElementById('reviewText').value.trim()
       })
     });
     const data = await res.json();
-    const text = (data.content || []).map(b => b.text || '').join('').trim();
-    if (!text) throw new Error();
-    document.getElementById('resultText').textContent = text;
-    document.getElementById('resultChars').textContent = text.length + '文字';
-    document.getElementById('resultCard').style.display = 'block';
-  } catch(e) {
-    document.getElementById('errorBox').textContent = '⚠️ 生成中にエラーが発生しました。もう一度お試しください。';
-    document.getElementById('errorBox').style.display = 'block';
-    document.getElementById('hintBox').style.display = 'block';
-  } finally {
-    btn.innerHTML = '✨ 返信文を生成する';
-    btn.disabled = false;
-    validate();
+
+    if (data.reply) {
+      document.getElementById('resultText').textContent = data.reply;
+      document.getElementById('resultCard').style.display = 'block';
+    } else {
+      alert('エラー: ' + (data.error || '生成に失敗しました'));
+    }
+  } catch (e) {
+    alert('通信エラーが発生しました。再度お試しください。');
   }
+
+  btn.disabled = false;
+  btn.innerHTML = '✨ 返信文を生成する';
+  checkForm();
 }
 
-function copyResult() {
+// コピー
+function copyText() {
   const text = document.getElementById('resultText').textContent;
   navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById('copyBtn');
-    btn.textContent = '✓ コピーしました';
-    btn.classList.add('copied');
-    setTimeout(() => {
-      btn.innerHTML = '📋 コピーする';
-      btn.classList.remove('copied');
-    }, 2000);
+    document.getElementById('copyMsg').innerHTML = '<div class="msg msg-success">✅ コピーしました！</div>';
+    setTimeout(() => document.getElementById('copyMsg').innerHTML = '', 2000);
   });
 }
 </script>
